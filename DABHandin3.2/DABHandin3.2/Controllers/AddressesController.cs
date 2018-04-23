@@ -9,18 +9,37 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using DABHandin3._2.Data;
 using DABHandin3._2.Models;
 
 namespace DABHandin3._2.Controllers
 {
     public class AddressesController : ApiController
     {
+        
         private Context db = new Context();
 
         // GET: api/Addresses
-        public IQueryable<Address> GetAddresses()
+        public IQueryable<AddressDTO> GetAddresses()
         {
-            return db.Addresses;
+            var ouw = new UnitOfWork<Address>(db);
+
+            var address = from a in ouw.Repo.ReadAll()
+                select new AddressDTO
+                {
+                    Id = a.Id,
+                    StreetName = a.StreetName,
+                    HouseNumber = a.HouseNumber,
+                    AddressType = a.AddressType,
+                    City_Id = a.City_Id,
+                    City = new CityDTO
+                    {
+                        CityName = a.City.CityName,
+                        Id = a.City.Id,
+                        ZipCode = a.City.ZipCode
+                    }
+                };
+            return address;
         }
 
         // GET: api/Addresses/5
@@ -33,7 +52,21 @@ namespace DABHandin3._2.Controllers
                 return NotFound();
             }
 
-            return Ok(address);
+            var addressdto = new AddressDTO
+            {
+                Id = address.Id,
+                StreetName = address.StreetName,
+                HouseNumber = address.HouseNumber,
+                AddressType = address.AddressType,
+                City_Id = address.City_Id,
+                City = new CityDTO
+                {
+                    Id = address.City.Id,
+                    CityName = address.City.CityName,
+                    ZipCode = address.City.ZipCode
+                }
+            };
+            return Ok(addressdto);
         }
 
         // PUT: api/Addresses/5

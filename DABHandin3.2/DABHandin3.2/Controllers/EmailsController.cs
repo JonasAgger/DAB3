@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using DABHandin3._2.Data;
 using DABHandin3._2.Models;
 
 namespace DABHandin3._2.Controllers
@@ -18,20 +19,33 @@ namespace DABHandin3._2.Controllers
         private Context db = new Context();
 
         // GET: api/Emails
-        public IQueryable<Email> GetEmails()
+        public IQueryable<EmailDTO> GetEmails()
         {
-            return db.Emails;
+            var ouw = new UnitOfWork<Email>(db);
+
+            var email = from e in ouw.Repo.ReadAll()
+                select new EmailDTO
+                {
+                    ID = e.Id,
+                    MailAddress = e.MailAddress
+                };
+
+            return email;
         }
 
         // GET: api/Emails/5
         [ResponseType(typeof(Email))]
         public async Task<IHttpActionResult> GetEmail(int id)
         {
+            var ouw = new UnitOfWork<Email>(db);
+
             Email email = await db.Emails.FindAsync(id);
             if (email == null)
             {
                 return NotFound();
             }
+
+            
 
             return Ok(email);
         }
