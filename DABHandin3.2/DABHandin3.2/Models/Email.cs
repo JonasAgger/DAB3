@@ -29,6 +29,5 @@ namespace DABHandin3._2.Models
     {
         public int ID { get; set; }
         public string MailAddress { get; set; }
-        public int Person_Id { get; set; }
     }
 }

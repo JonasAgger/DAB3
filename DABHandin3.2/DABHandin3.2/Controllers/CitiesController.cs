@@ -16,30 +16,50 @@ namespace DABHandin3._2.Controllers
 {
     public class CitiesController : ApiController
     {
-        private readonly UnitOfWork<City> _uow = new UnitOfWork<City>(new Context());
+        private Context _db = new Context();
         // GET: api/Cities
-        public IQueryable<City> GetCities()
+        public IQueryable<CityDTO> GetCities()
         {
-            return _uow.Repo.ReadAll();
+            var uow = new UnitOfWork<City>(_db);
+
+            var city = from c in uow.Repo.ReadAll()
+                select new CityDTO
+                {
+                    Id = c.Id,
+                    CityName = c.CityName,
+                    ZipCode = c.ZipCode
+                };
+            return city;
         }
 
         // GET: api/Cities/5
         [ResponseType(typeof(City))]
         public async Task<IHttpActionResult> GetCity(int id)
         {
-            City city = _uow.Repo.Read(id);
+            var uow = new UnitOfWork<City>(_db);
+
+            City city = uow.Repo.Read(id);
             if (city == null)
             {
                 return NotFound();
             }
 
-            return Ok(city);
+            var citydto = new CityDTO
+            {
+                Id = city.Id,
+                CityName = city.CityName,
+                ZipCode = city.ZipCode
+            };
+
+            return Ok(citydto);
         }
 
         // PUT: api/Cities/5
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> PutCity(int id, City city)
         {
+            var _uow = new UnitOfWork<City>(_db);
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -75,6 +95,8 @@ namespace DABHandin3._2.Controllers
         [ResponseType(typeof(City))]
         public async Task<IHttpActionResult> PostCity(City city)
         {
+            var _uow = new UnitOfWork<City>(_db);
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -92,6 +114,8 @@ namespace DABHandin3._2.Controllers
         [ResponseType(typeof(City))]
         public async Task<IHttpActionResult> DeleteCity(int id)
         {
+            var _uow = new UnitOfWork<City>(_db);
+
             City city = _uow.Repo.Read(id);
             if (city == null)
             {
@@ -106,6 +130,8 @@ namespace DABHandin3._2.Controllers
 
         protected override void Dispose(bool disposing)
         {
+            var _uow = new UnitOfWork<City>(_db);
+
             if (disposing)
             {
                 _uow.Dispose();
@@ -115,6 +141,8 @@ namespace DABHandin3._2.Controllers
 
         private bool CityExists(int id)
         {
+            var _uow = new UnitOfWork<City>(_db);
+
             return _uow.Repo.ReadAll().Count(e => e.Id == id) > 0;
         }
     }

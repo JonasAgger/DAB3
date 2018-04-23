@@ -41,7 +41,7 @@ namespace DABHandin3._2.Models
         public string AddressType { get; set; }
         public string StreetName { get; set; }
         public string HouseNumber { get; set; }
-        public int City_Id { get; set; }
+        public int? City_Id { get; set; }
         public CityDTO City { get; set; }
     }
 }
