@@ -35,6 +35,5 @@ namespace DABHandin3._2.Models
         public string Number { get; set; }
         public string Company { get; set; }
         public int Type { get; set; }
-        public int Person_id { get; set; }
     }
 }

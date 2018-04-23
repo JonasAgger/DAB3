@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using DABHandin3._2.Data;
 using DABHandin3._2.Models;
 
 namespace DABHandin3._2.Controllers
@@ -18,22 +19,44 @@ namespace DABHandin3._2.Controllers
         private Context db = new Context();
 
         // GET: api/PhoneNumbers
-        public IQueryable<PhoneNumber> GetPhoneNumbers()
+        public IQueryable<PhoneDTO> GetPhoneNumbers()
         {
-            return db.PhoneNumbers;
+            var uow = new UnitOfWork<PhoneNumber>(db);
+
+            var numbers = from p in uow.Repo.ReadAll()
+                select new PhoneDTO
+                {
+                    Id = p.Id,
+                    Number = p.Number,
+                    Company = p.Company,
+                    Type = p.Type
+                };
+            return numbers;
         }
 
         // GET: api/PhoneNumbers/5
-        [ResponseType(typeof(PhoneNumber))]
+        [ResponseType(typeof(PhoneDTO))]
         public async Task<IHttpActionResult> GetPhoneNumber(int id)
         {
-            PhoneNumber phoneNumber = await db.PhoneNumbers.FindAsync(id);
+            var uow = new UnitOfWork<PhoneNumber>(db);
+
+            var phoneNumber = uow.Repo.Read(id);
+
             if (phoneNumber == null)
             {
                 return NotFound();
             }
 
-            return Ok(phoneNumber);
+
+            var number = new PhoneDTO
+                {
+                    Id = phoneNumber.Id,
+                    Number = phoneNumber.Number,
+                    Company = phoneNumber.Company,
+                    Type = phoneNumber.Type
+                };
+
+            return Ok(number);
         }
 
         // PUT: api/PhoneNumbers/5
@@ -75,13 +98,15 @@ namespace DABHandin3._2.Controllers
         [ResponseType(typeof(PhoneNumber))]
         public async Task<IHttpActionResult> PostPhoneNumber(PhoneNumber phoneNumber)
         {
+            var uow = new UnitOfWork<PhoneNumber>(db);
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            db.PhoneNumbers.Add(phoneNumber);
-            await db.SaveChangesAsync();
+            uow.Repo.Create(phoneNumber);
+            uow.Commit();
 
             return CreatedAtRoute("DefaultApi", new { id = phoneNumber.Id }, phoneNumber);
         }
@@ -90,30 +115,36 @@ namespace DABHandin3._2.Controllers
         [ResponseType(typeof(PhoneNumber))]
         public async Task<IHttpActionResult> DeletePhoneNumber(int id)
         {
-            PhoneNumber phoneNumber = await db.PhoneNumbers.FindAsync(id);
+            var uow = new UnitOfWork<PhoneNumber>(db);
+
+            PhoneNumber phoneNumber = uow.Repo.Read(id);
             if (phoneNumber == null)
             {
                 return NotFound();
             }
 
-            db.PhoneNumbers.Remove(phoneNumber);
-            await db.SaveChangesAsync();
+            uow.Repo.Delete(phoneNumber);
+            uow.Commit();
 
             return Ok(phoneNumber);
         }
 
         protected override void Dispose(bool disposing)
         {
+            var uow = new UnitOfWork<PhoneNumber>(db);
+
             if (disposing)
             {
-                db.Dispose();
+                uow.Dispose();
             }
             base.Dispose(disposing);
         }
 
         private bool PhoneNumberExists(int id)
         {
-            return db.PhoneNumbers.Count(e => e.Id == id) > 0;
+            var uow = new UnitOfWork<PhoneNumber>(db);
+
+            return uow.Repo.ReadAll().Count(e => e.Id == id) > 0;
         }
     }
 }

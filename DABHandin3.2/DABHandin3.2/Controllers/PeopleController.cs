@@ -66,7 +66,9 @@ namespace DABHandin3._2.Controllers
         [ResponseType(typeof(PersonDTO))]
         public async Task<IHttpActionResult> GetPerson(int id)
         {
-            Person person = await db.People.FindAsync(id);
+            var uow = new UnitOfWork<Person>(db);
+
+            Person person = uow.Repo.Read(id);
             if (person == null)
             {
                 return NotFound();
@@ -131,12 +133,12 @@ namespace DABHandin3._2.Controllers
             pers.MiddleName = person.MiddleName;
             pers.LastName = person.LastName;
             pers.Type = person.Type;
-
+            /*
             for (int i = 0; i < person.Addresses.Count; i++)
             {
                 pers.Addresses.//person.Addresses.ToArray()[i].Id
             }
-
+            */
             uow.Repo.Update(id, pers);
 
             try
