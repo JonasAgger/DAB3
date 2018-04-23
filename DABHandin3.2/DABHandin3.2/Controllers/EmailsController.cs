@@ -94,8 +94,11 @@ namespace DABHandin3._2.Controllers
                 return BadRequest(ModelState);
             }
 
-            db.Emails.Add(email);
-            await db.SaveChangesAsync();
+            var uow = new UnitOfWork<Email>(db);
+
+            uow.Repo.Create(email);
+
+            uow.Commit();
 
             return CreatedAtRoute("DefaultApi", new { id = email.Id }, email);
         }
@@ -104,14 +107,17 @@ namespace DABHandin3._2.Controllers
         [ResponseType(typeof(Email))]
         public async Task<IHttpActionResult> DeleteEmail(int id)
         {
+            var uow = new UnitOfWork<Email>(db);
+
             Email email = await db.Emails.FindAsync(id);
             if (email == null)
             {
                 return NotFound();
             }
 
-            db.Emails.Remove(email);
-            await db.SaveChangesAsync();
+            uow.Repo.Delete(email);
+
+            uow.Commit();
 
             return Ok(email);
         }

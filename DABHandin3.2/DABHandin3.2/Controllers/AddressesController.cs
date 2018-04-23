@@ -113,8 +113,11 @@ namespace DABHandin3._2.Controllers
                 return BadRequest(ModelState);
             }
 
-            db.Addresses.Add(address);
-            await db.SaveChangesAsync();
+            var uow = new UnitOfWork<Address>(db);
+
+            uow.Repo.Create(address);
+
+            uow.Commit();
 
             return CreatedAtRoute("DefaultApi", new { id = address.Id }, address);
         }
@@ -123,14 +126,17 @@ namespace DABHandin3._2.Controllers
         [ResponseType(typeof(Address))]
         public async Task<IHttpActionResult> DeleteAddress(int id)
         {
+            var uow = new UnitOfWork<Address>(db);
+
             Address address = await db.Addresses.FindAsync(id);
             if (address == null)
             {
                 return NotFound();
             }
 
-            db.Addresses.Remove(address);
-            await db.SaveChangesAsync();
+            uow.Repo.Delete(address);
+            
+            uow.Commit();
 
             return Ok(address);
         }

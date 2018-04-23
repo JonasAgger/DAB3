@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using DABHandin3._2.Data;
 using DABHandin3._2.Models;
 
 namespace DABHandin3._2.Controllers
@@ -75,13 +76,16 @@ namespace DABHandin3._2.Controllers
         [ResponseType(typeof(PhoneNumber))]
         public async Task<IHttpActionResult> PostPhoneNumber(PhoneNumber phoneNumber)
         {
+            var uow = new UnitOfWork<PhoneNumber>(db);
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            db.PhoneNumbers.Add(phoneNumber);
-            await db.SaveChangesAsync();
+            uow.Repo.Create(phoneNumber);
+
+            uow.Commit();
 
             return CreatedAtRoute("DefaultApi", new { id = phoneNumber.Id }, phoneNumber);
         }
@@ -90,14 +94,17 @@ namespace DABHandin3._2.Controllers
         [ResponseType(typeof(PhoneNumber))]
         public async Task<IHttpActionResult> DeletePhoneNumber(int id)
         {
+            var uow = new UnitOfWork<PhoneNumber>(db);
+
             PhoneNumber phoneNumber = await db.PhoneNumbers.FindAsync(id);
             if (phoneNumber == null)
             {
                 return NotFound();
             }
 
-            db.PhoneNumbers.Remove(phoneNumber);
-            await db.SaveChangesAsync();
+            uow.Repo.Delete(phoneNumber);
+
+            uow.Commit();
 
             return Ok(phoneNumber);
         }
