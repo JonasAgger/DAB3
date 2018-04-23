@@ -132,10 +132,10 @@ namespace DABHandin3._2.Controllers
             pers.LastName = person.LastName;
             pers.Type = person.Type;
 
-            for (int i = 0; i < person.Addresses.Count; i++)
-            {
-                pers.Addresses.//person.Addresses.ToArray()[i].Id
-            }
+            //for (int i = 0; i < person.Addresses.Count; i++)
+            //{
+            //    pers.Addresses.//person.Addresses.ToArray()[i].Id
+            //}
 
             uow.Repo.Update(id, pers);
 
