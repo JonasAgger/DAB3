@@ -9,6 +9,7 @@ namespace DABHandin3._2.Data
     {
         void Create(T t);
         T Read(int id);
+        //T ReadWithRelations(int id);
         DbSet<T> ReadAll();
         void Update(int id, T t);
         void Delete(T t);

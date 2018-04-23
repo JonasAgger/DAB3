@@ -12,6 +12,7 @@ using System.Web.Http.Description;
 using DABHandin3._2.Data;
 using DABHandin3._2.Models;
 
+
 namespace DABHandin3._2.Controllers
 {
     public class PeopleController : ApiController
@@ -112,6 +113,8 @@ namespace DABHandin3._2.Controllers
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> PutPerson(int id, Person person)
         {
+            var uow = new UnitOfWork<Person>(db);
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -122,11 +125,23 @@ namespace DABHandin3._2.Controllers
                 return BadRequest();
             }
 
-            db.Entry(person).State = EntityState.Modified;
+            var pers = uow.Repo.Read(id);
+
+            pers.FirstName = person.FirstName;
+            pers.MiddleName = person.MiddleName;
+            pers.LastName = person.LastName;
+            pers.Type = person.Type;
+
+            for (int i = 0; i < person.Addresses.Count; i++)
+            {
+                pers.Addresses.//person.Addresses.ToArray()[i].Id
+            }
+
+            uow.Repo.Update(id, pers);
 
             try
             {
-                await db.SaveChangesAsync();
+                uow.Commit();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -152,8 +167,11 @@ namespace DABHandin3._2.Controllers
                 return BadRequest(ModelState);
             }
 
-            db.People.Add(person);
-            await db.SaveChangesAsync();
+            var uow = new UnitOfWork<Person>(db);
+
+            uow.Repo.Create(person);
+
+            uow.Commit();
 
             return CreatedAtRoute("DefaultApi", new { id = person.Id }, person);
         }
@@ -162,30 +180,37 @@ namespace DABHandin3._2.Controllers
         [ResponseType(typeof(Person))]
         public async Task<IHttpActionResult> DeletePerson(int id)
         {
-            Person person = await db.People.FindAsync(id);
+            var uow = new UnitOfWork<Person>(db);
+
+            Person person = uow.Repo.Read(id);
             if (person == null)
             {
                 return NotFound();
             }
 
-            db.People.Remove(person);
-            await db.SaveChangesAsync();
+            uow.Repo.Delete(person);
+
+            uow.Commit();
 
             return Ok(person);
         }
 
         protected override void Dispose(bool disposing)
         {
+            var uow = new UnitOfWork<Person>(db);
+
             if (disposing)
             {
-                db.Dispose();
+                uow.Dispose();
             }
             base.Dispose(disposing);
         }
 
         private bool PersonExists(int id)
         {
-            return db.People.Count(e => e.Id == id) > 0;
+            var uow = new UnitOfWork<Person>(db);
+
+            return uow.Repo.ReadAll().Count(e => e.Id == id) > 0;
         }
     }
 }
