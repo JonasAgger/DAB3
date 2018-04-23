@@ -106,6 +106,7 @@ namespace DABHandin3._2.Controllers
             }
 
             uow.Repo.Create(phoneNumber);
+
             uow.Commit();
 
             return CreatedAtRoute("DefaultApi", new { id = phoneNumber.Id }, phoneNumber);
@@ -118,12 +119,14 @@ namespace DABHandin3._2.Controllers
             var uow = new UnitOfWork<PhoneNumber>(db);
 
             PhoneNumber phoneNumber = uow.Repo.Read(id);
+
             if (phoneNumber == null)
             {
                 return NotFound();
             }
 
             uow.Repo.Delete(phoneNumber);
+
             uow.Commit();
 
             return Ok(phoneNumber);
