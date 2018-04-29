@@ -47,8 +47,8 @@ namespace DABHandin3._2.Models
         public string MiddleName { get; set; }
         public string LastName { get; set; }
         public int Type { get; set; }
-        public IEnumerable<AddressDTO> AddressDtos { get; set; }
-        public IEnumerable<EmailDTO> EmailDtos { get; set; }
-        public IEnumerable<PhoneDTO> PhoneDtos { get; set; }
+        public IEnumerable<AddressDTO> Addresses { get; set; }
+        public IEnumerable<EmailDTO> Emails { get; set; }
+        public IEnumerable<PhoneDTO> PhoneNumbers { get; set; }
     }
 }

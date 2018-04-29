@@ -28,7 +28,7 @@ namespace DABHandin3._2.Controllers
                 select new PersonDTO
                 {
                     Id = p.Id,
-                    EmailDtos = from e in p.Emails
+                    Emails = from e in p.Emails
                         select new EmailDTO
                         {
                             ID = e.Id,
@@ -37,7 +37,7 @@ namespace DABHandin3._2.Controllers
                     FirstName = p.FirstName,
                     MiddleName = p.MiddleName,
                     LastName = p.LastName,
-                    PhoneDtos = from n in p.PhoneNumbers
+                    PhoneNumbers = from n in p.PhoneNumbers
                         select new PhoneDTO
                         {
                             Id = n.Id,
@@ -45,7 +45,7 @@ namespace DABHandin3._2.Controllers
                             Company = n.Company,
                             Type = n.Type
                         },
-                    AddressDtos = from a in p.Addresses
+                    Addresses = from a in p.Addresses
                         select new AddressDTO
                         {
                             Id = a.Id,
@@ -79,7 +79,7 @@ namespace DABHandin3._2.Controllers
             var persondto = new PersonDTO
             {
                 Id = person.Id,
-                EmailDtos = from e in person.Emails
+                Emails = from e in person.Emails
                     select new EmailDTO
                     {
                         ID = e.Id,
@@ -88,7 +88,7 @@ namespace DABHandin3._2.Controllers
                 FirstName = person.FirstName,
                 MiddleName = person.MiddleName,
                 LastName = person.LastName,
-                PhoneDtos = from n in person.PhoneNumbers
+                PhoneNumbers = from n in person.PhoneNumbers
                     select new PhoneDTO
                     {
                         Id = n.Id,
@@ -96,7 +96,7 @@ namespace DABHandin3._2.Controllers
                         Company = n.Company,
                         Type = n.Type
                     },
-                AddressDtos = from a in person.Addresses
+                Addresses = from a in person.Addresses
                     select new AddressDTO
                     {
                         Id = a.Id,
@@ -264,20 +264,20 @@ namespace DABHandin3._2.Controllers
                     Id = p.Id,
                     FirstName = p.FirstName,
                     LastName = p.LastName,
-                    EmailDtos = from email in p.Emails
+                    Emails = from email in p.Emails
                         select new EmailDTO
                         {
                             ID = email.Id,
                             MailAddress = email.MailAddress
                         },
-                    PhoneDtos = from number in p.PhoneNumbers
+                    PhoneNumbers = from number in p.PhoneNumbers
                         select new PhoneDTO
                         {
                             Id = number.Id,
                             Company = number.Company,
                             Type = number.Type
                         },
-                    AddressDtos = from adr in p.Addresses
+                    Addresses = from adr in p.Addresses
                         select new AddressDTO()
                         {
                             Id = adr.Id,
