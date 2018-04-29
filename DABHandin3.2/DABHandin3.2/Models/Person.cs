@@ -44,6 +44,7 @@ namespace DABHandin3._2.Models
     {
         public int Id { get; set; }
         public string FirstName { get; set; }
+        public string MiddleName { get; set; }
         public string LastName { get; set; }
         public int Type { get; set; }
         public IEnumerable<AddressDTO> AddressDtos { get; set; }
