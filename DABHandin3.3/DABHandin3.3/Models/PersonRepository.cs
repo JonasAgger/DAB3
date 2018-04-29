@@ -37,7 +37,7 @@ namespace DABHandin3._3.Models
                     if (de.StatusCode == HttpStatusCode.NotFound)
                     {
                         await this.documentClient.CreateDocumentAsync(
-                            UriFactory.CreateDocumentCollectionUri(dbName, collName), t);
+                            UriFactory.CreateDocumentCollectionUri(dbName, collName), t.ToPerson());
                         Console.WriteLine($"Created the person {t.Id}");
                     }
                     else
@@ -77,7 +77,7 @@ namespace DABHandin3._3.Models
             
             
                 await this.documentClient.ReplaceDocumentAsync(
-                    UriFactory.CreateDocumentUri(dbName, collName, documentName), t);
+                    UriFactory.CreateDocumentUri(dbName, collName, documentName), t.ToPerson());
                 Console.WriteLine($"Replaced the person {documentName}");
             
         }
