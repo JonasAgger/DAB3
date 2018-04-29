@@ -50,17 +50,17 @@ namespace DABHandin3._3.Models
 
         public async Task<IEnumerable<PersonDTO>> ReadAll()
         {
-            IQueryable<Person> queryPersons =
-                this.documentClient.CreateDocumentQuery<Person>(
+            IQueryable<PersonDTO> queryPersons =
+                this.documentClient.CreateDocumentQuery<PersonDTO>(
                     UriFactory.CreateDocumentCollectionUri(dbName, collName), "select * from Person");
 
             List<PersonDTO> persons = new List<PersonDTO>();
 
-            foreach (Person person in queryPersons)
+            foreach (PersonDTO person in queryPersons)
             {
                 Console.WriteLine($"Persons found: {person.FirstName} {person.LastName}");
 
-                persons.Add(new PersonDTO(person));
+                persons.Add(person);
             }
 
             return persons;

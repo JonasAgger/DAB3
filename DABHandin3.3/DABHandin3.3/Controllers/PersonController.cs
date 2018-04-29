@@ -19,22 +19,18 @@ namespace DABHandin3._3.Controllers
 
         private PersonRepository _personRepository;
 
-        private async Task SetUp()
-        {
-            // Create DB
-            await _client.CreateDatabaseIfNotExistsAsync(new Database { Id = "F184DABH3Gr9DB" });
-            // Create Collection
-            await _client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri("F184DABH2Gr9DB"),
-                new DocumentCollection { Id = "F184DABH3Gr9Collection" });
-        }
-
+        
         public PersonController()
         {
             _client = new DocumentClient(new Uri(EndpointUrl), PrimaryKey);
 
-            SetUp().Wait();
+            // Create DB
+            _client.CreateDatabaseIfNotExistsAsync(new Database { Id = "PersonDB1" }).Wait(2000);
+            // Create Collection
+            _client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri("PersonDB1"),
+                new DocumentCollection { Id = "PersonColl1" }).Wait(2000);
 
-            _personRepository = new PersonRepository(_client, "F184DABH3Gr9DB", "F184DABH3Gr9Collection");
+            _personRepository = new PersonRepository(_client, "PersonDB1", "PersonColl1");
         }
 
 
