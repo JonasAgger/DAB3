@@ -28,22 +28,24 @@ namespace DABHandin3._2.Controllers
                 select new PersonDTO
                 {
                     Id = p.Id,
-                    EmailDtos = from e in p.Emails
+                    Emails = from e in p.Emails
                         select new EmailDTO
                         {
                             ID = e.Id,
                             MailAddress = e.MailAddress
                         },
                     FirstName = p.FirstName,
+                    MiddleName = p.MiddleName,
                     LastName = p.LastName,
-                    PhoneDtos = from n in p.PhoneNumbers
+                    PhoneNumbers = from n in p.PhoneNumbers
                         select new PhoneDTO
                         {
                             Id = n.Id,
+                            Number = n.Number,
                             Company = n.Company,
                             Type = n.Type
                         },
-                    AddressDtos = from a in p.Addresses
+                    Addresses = from a in p.Addresses
                         select new AddressDTO
                         {
                             Id = a.Id,
@@ -77,22 +79,24 @@ namespace DABHandin3._2.Controllers
             var persondto = new PersonDTO
             {
                 Id = person.Id,
-                EmailDtos = from e in person.Emails
+                Emails = from e in person.Emails
                     select new EmailDTO
                     {
                         ID = e.Id,
                         MailAddress = e.MailAddress
                     },
                 FirstName = person.FirstName,
+                MiddleName = person.MiddleName,
                 LastName = person.LastName,
-                PhoneDtos = from n in person.PhoneNumbers
+                PhoneNumbers = from n in person.PhoneNumbers
                     select new PhoneDTO
                     {
                         Id = n.Id,
+                        Number = n.Number,
                         Company = n.Company,
                         Type = n.Type
                     },
-                AddressDtos = from a in person.Addresses
+                Addresses = from a in person.Addresses
                     select new AddressDTO
                     {
                         Id = a.Id,
@@ -129,16 +133,94 @@ namespace DABHandin3._2.Controllers
 
             var pers = uow.Repo.Read(id);
 
+            if (pers == null) return NotFound(); // Not found
+
             pers.FirstName = person.FirstName;
             pers.MiddleName = person.MiddleName;
             pers.LastName = person.LastName;
             pers.Type = person.Type;
-            /*
-            for (int i = 0; i < person.Addresses.Count; i++)
+
+
+
+            if (person.Emails != null)
             {
-                pers.Addresses.//person.Addresses.ToArray()[i].Id
+                // Update emails - sketchy but works
+                var emails = new UnitOfWork<Email>(db);
+                pers.Emails.Clear();
+
+                foreach (var email in person.Emails)
+                {
+                    var mails = emails.Repo.ReadAll().FirstOrDefault(em => email.Id == em.Id);
+
+                    // Checking if mailaddress exists 
+                    if (mails != null)
+                    {
+                        pers.Emails.Add(mails);
+                    }
+                    else
+                    {
+                        emails.Repo.Create(email);
+                        pers.Emails.Add(email);
+                    }
+                }
+
+                emails.Commit();
             }
-            */
+
+
+            // Same as above, just for addresses
+            if (person.Addresses != null)
+            {
+                var addr = new UnitOfWork<Address>(db);
+                pers.Addresses.Clear();
+                foreach (var address in person.Addresses)
+                {
+                    var ad = addr.Repo.ReadAll().Include(e => e.City).FirstOrDefault(e => address.Id == e.Id);
+                    if (ad != null)
+                    {
+                        pers.Addresses.Add(ad);
+                    }
+                    else
+                    {
+                        // Creating City if not found
+                        var city = new UnitOfWork<City>(db);
+                        if (city.Repo.ReadAll().FirstOrDefault(c => c.CityName == address.City.CityName) == null)
+                        {
+                            city.Repo.Create(address.City);
+                            city.Commit();
+                        }
+
+                        addr.Repo.Create(address);
+                        pers.Addresses.Add(address);
+
+                    }
+                }
+
+                addr.Commit();
+            }
+
+
+
+            if (person.PhoneNumbers != null)
+            {
+                var numbers = new UnitOfWork<PhoneNumber>(db);
+                pers.PhoneNumbers.Clear();
+
+                foreach (var number in person.PhoneNumbers)
+                {
+                    var phNumber = numbers.Repo.ReadAll().FirstOrDefault(p => p.Id == number.Id);
+                    if (phNumber != null)
+                    {
+                        pers.PhoneNumbers.Add(phNumber);
+                    }
+                    else
+                    {
+                        numbers.Repo.Create(number);
+                        pers.PhoneNumbers.Add(number);
+                    }
+                }
+            }
+
             uow.Repo.Update(id, pers);
 
             try
@@ -175,7 +257,38 @@ namespace DABHandin3._2.Controllers
 
             uow.Commit();
 
-            return CreatedAtRoute("DefaultApi", new { id = person.Id }, person);
+            PersonDTO pers = uow.Repo.ReadAll()
+                .Include(p => p.Emails).Include(p => p.PhoneNumbers).Include(p => p.Addresses)
+                .Select(p => new PersonDTO()
+                {
+                    Id = p.Id,
+                    FirstName = p.FirstName,
+                    LastName = p.LastName,
+                    Emails = from email in p.Emails
+                        select new EmailDTO
+                        {
+                            ID = email.Id,
+                            MailAddress = email.MailAddress
+                        },
+                    PhoneNumbers = from number in p.PhoneNumbers
+                        select new PhoneDTO
+                        {
+                            Id = number.Id,
+                            Company = number.Company,
+                            Type = number.Type
+                        },
+                    Addresses = from adr in p.Addresses
+                        select new AddressDTO()
+                        {
+                            Id = adr.Id,
+                            HouseNumber = adr.HouseNumber,
+                            StreetName = adr.StreetName,
+                            City_Id = adr.City_Id,
+                            City = new CityDTO() { CityName = adr.City.CityName, ZipCode = adr.City.ZipCode}
+                        }
+                }).SingleOrDefault(p => p.Id == person.Id);
+
+            return CreatedAtRoute("DefaultApi", new { id = person.Id }, pers);
         }
 
         // DELETE: api/People/5
